@@ -45,7 +45,7 @@ class GenreRepositoryTests {
         String bookGenre = book.getGenre();
         long actualId = genreRepository.getGenreIdByGenreName(bookGenre).get(0).getId();
 
-        Assertions.assertEquals(3, actualId);
+        Assertions.assertEquals(1, actualId);
     }
 
 }

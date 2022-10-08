@@ -46,7 +46,7 @@ class AuthorRepositoryTests {
         long actualId = authorRepository.getAuthorIdByAuthorFio(bookAuthors).get(0).getId();
 
 
-        Assertions.assertEquals(2, actualId);
+        Assertions.assertEquals(1, actualId);
     }
 
 }
