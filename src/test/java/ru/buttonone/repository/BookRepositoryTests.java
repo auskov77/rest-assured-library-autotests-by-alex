@@ -20,26 +20,14 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static ru.buttonone.SomeApiConstants.*;
 
 @DisplayName("Проверка API тестов методов BookRepository:")
 @SpringBootTest
 public class BookRepositoryTests {
 
-    public static final String BASE_URL = "http://localhost:8080";
-    public static final int STATUS_COD_200 = 200;
-    public static final String API_BOOKS_ADD = "/api/books/add";
-    public static final String TEST_GET_A_1 = "test_get_a1";
-    public static final String TEST_GET_G_1 = "test_get_g1";
-    public static final String TEST_GET_T_1 = "test_get_t1";
-    public static final long TEST_ID_1 = 1;
-    public static final String TEST_GET_A_2 = "test_get_a2";
-    public static final String TEST_GET_G_2 = "test_get_g2";
-    public static final String TEST_GET_T_2 = "test_get_t2";
-    public static final long TEST_ID_2 = 2;
-    public static final String API_BOOKS = "/api/books";
-
     @Autowired
-    BookRepository bookRepository;
+    private BookRepository bookRepository;
 
     @BeforeAll
     public static void setup() {
@@ -74,7 +62,6 @@ public class BookRepositoryTests {
                 .delete(API_BOOKS + "/" + deleteBookId)
                 .then()
                 .statusCode(STATUS_COD_200);
-
     }
 
     @DisplayName(" после добавления книга появляется в БД")

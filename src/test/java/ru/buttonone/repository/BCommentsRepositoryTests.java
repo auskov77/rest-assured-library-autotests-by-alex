@@ -11,17 +11,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.buttonone.domain.BComments;
 
 import static io.restassured.RestAssured.given;
+import static ru.buttonone.SomeApiConstants.*;
 
 @DisplayName("Проверка API тестов методов B_commentsRepository")
 @SpringBootTest
-class BCommentsRepositoryTests {
-    public static final String BASE_URL = "http://localhost:8080";
-    public static final int STATUS_COD_200 = 200;
-    public static final String API_BOOKS = "/api/books";
-    public static final int CORRECT_ID_1 = 1;
+public class BCommentsRepositoryTests {
 
     @Autowired
-    BCommentsRepository b_commentsRepository;
+    private BCommentsRepository b_commentsRepository;
 
     @BeforeAll
     public static void setup() {
