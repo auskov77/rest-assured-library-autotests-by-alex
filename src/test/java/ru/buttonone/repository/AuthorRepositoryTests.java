@@ -9,19 +9,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.buttonone.domain.Book;
+import static ru.buttonone.SomeApiConstants.*;
 
 import static io.restassured.RestAssured.given;
 
 @DisplayName("Проверка API тестов методов AuthorRepository")
 @SpringBootTest
-class AuthorRepositoryTests {
-    public static final String BASE_URL = "http://localhost:8080";
-    public static final int STATUS_COD_200 = 200;
-    public static final String API_BOOKS = "/api/books";
-    public static final int CORRECT_ID_1 = 1;
+public class AuthorRepositoryTests {
 
     @Autowired
-    AuthorRepository authorRepository;
+    private AuthorRepository authorRepository;
 
     @BeforeAll
     public static void setup() {
@@ -44,7 +41,6 @@ class AuthorRepositoryTests {
                 .getObject("", Book.class);
         String bookAuthors = book.getAuthors();
         long actualId = authorRepository.getAuthorIdByAuthorFio(bookAuthors).get(0).getId();
-
 
         Assertions.assertEquals(1, actualId);
     }
