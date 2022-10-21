@@ -1,7 +1,7 @@
 package ru.buttonone;
 
 public enum SomeApiConstants {;
-        public static final String BASE_URL = "http://localhost:8080";
+        public static final String BASE_URL = "http://localhost:8081";
         public static final int STATUS_COD_200 = 200;
         public static final String API_BOOKS = "/api/books";
         public static final int CORRECT_ID_1 = 1;
