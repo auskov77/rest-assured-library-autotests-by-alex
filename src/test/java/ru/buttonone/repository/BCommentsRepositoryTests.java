@@ -45,7 +45,6 @@ public class BCommentsRepositoryTests {
                 .when()
                 .post(API_BOOKS_ADD)
                 .then()
-                .log().all()
                 .statusCode(STATUS_COD_200);
     }
 
@@ -64,17 +63,14 @@ public class BCommentsRepositoryTests {
     @BeforeTestMethod
     public void insertTestCommentById() throws JsonProcessingException {
         long insertTestBookId = bookRepository.getBooksByTitle(TEST_T_1).get(0).getId();
-        System.out.println("insertTestBookId = " + insertTestBookId);
         BComments expectedCommentBook = new BComments(
                 TEST_COMMENT_ID,
                 insertTestBookId,
                 TEST_COMMENT_NICKNAME,
                 TEST_COMMENT_MESSAGE
         );
-        System.out.println(API_BOOKS + "/" + insertTestBookId + API_COMMENTS);
         String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
                 .writeValueAsString(expectedCommentBook);
-        System.out.println("jsonExpectedBook = " + jsonExpectedBook);
         given()
                 .header(HEADER)
                 .body(jsonExpectedBook)
