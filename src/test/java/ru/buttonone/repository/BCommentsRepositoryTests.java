@@ -91,7 +91,6 @@ public class BCommentsRepositoryTests {
                 .when()
                 .get(API_BOOKS + "/" + insertTestBookId + API_COMMENTS)
                 .then()
-                .log().all()
                 .statusCode(STATUS_COD_200);
         validatableResponse
                 .extract()
