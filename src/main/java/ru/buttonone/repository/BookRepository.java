@@ -8,8 +8,12 @@ import ru.buttonone.domain.Book;
 import java.util.List;
 
 public interface BookRepository extends CrudRepository<Book, Long> {
-
-    @Query("select b.id, b.title, a.fio as authors, g.name as genre from books b join books_authors ba on b.id = ba.book_id join authors a on ba.author_id = a.id join genres g on b.genre_id  = g.id where title = :title")
+    @Query("select b.id, b.title, a.fio as authors, g.name as genre " +
+            "from books b " +
+            "join books_authors ba on b.id = ba.book_id " +
+            "join authors a on ba.author_id = a.id " +
+            "join genres g on b.genre_id  = g.id " +
+            "where title = :title")
     List<Book> getBooksByTitle(@Param("title") String title);
 
     @Query("select * from books b where b.id = :id")

@@ -3,23 +3,14 @@ package ru.buttonone.repository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
-import io.restassured.http.Header;
 import io.restassured.response.ValidatableResponse;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.event.annotation.AfterTestMethod;
 import org.springframework.test.context.event.annotation.BeforeTestMethod;
 import ru.buttonone.domain.Book;
-
 import java.util.List;
-
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static ru.buttonone.SomeApiConstants.*;
 
 @DisplayName("Проверка API тестов методов BookRepository:")
@@ -35,97 +26,121 @@ public class BookRepositoryTests {
     }
 
     @BeforeTestMethod
-    public void insertBookById_2() throws JsonProcessingException {
-        Book expectedBook2 = new Book(
-                TEST_ID_2,
-                TEST_GET_A_2,
-                TEST_GET_G_2,
-                TEST_GET_T_2);
-        String jsonExpectedBook2 = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(expectedBook2);
-
+    public void insertTestBookByIdFirstMethod() throws JsonProcessingException {
+        Book expectedBook = new Book(
+                TEST_ID_3,
+                TEST_A_3,
+                TEST_G_3,
+                TEST_T_3
+        );
+        String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
+                .writeValueAsString(expectedBook);
         given()
-                .header(new Header("Content-Type", "application/json"))
-                .body(jsonExpectedBook2)
+                .header(HEADER)
+                .body(jsonExpectedBook)
                 .when()
                 .post(API_BOOKS_ADD)
                 .then()
                 .statusCode(STATUS_COD_200);
     }
 
-    @AfterTestMethod
-    public void deleteTestBookById() {
-        var deleteBookId = bookRepository.getBookIdByBookTitle(TEST_GET_T_1).get(0).getId();
-
+    @BeforeTestMethod
+    public void insertTestBookByIdSecondMethod() throws JsonProcessingException {
+        Book expectedBook = new Book(
+                TEST_ID_4,
+                TEST_A_4,
+                TEST_G_4,
+                TEST_T_4
+        );
+        String jsonExpectedBook = new ObjectMapper().writerWithDefaultPrettyPrinter()
+                .writeValueAsString(expectedBook);
         given()
+                .header(HEADER)
+                .body(jsonExpectedBook)
                 .when()
-                .delete(API_BOOKS + "/" + deleteBookId)
+                .post(API_BOOKS_ADD)
                 .then()
                 .statusCode(STATUS_COD_200);
+    }
+
+    @AfterEach
+    public void deleteTestBookByIdFirstMethod() {
+        if ((bookRepository.getBookIdByBookTitle(TEST_T_3).size()) != 0) {
+            var deleteBookId = bookRepository.getBookIdByBookTitle(TEST_T_3).get(0).getId();
+            given()
+                    .when()
+                    .delete(API_BOOKS + "/" + deleteBookId)
+                    .then()
+                    .statusCode(STATUS_COD_200);
+        }
+    }
+
+    @AfterEach
+    public void deleteTestBookByIdSecondMethod() {
+        if ((bookRepository.getBookIdByBookTitle(TEST_T_4).size()) != 0) {
+            var deleteBookId = bookRepository.getBookIdByBookTitle(TEST_T_4).get(0).getId();
+            given()
+                    .when()
+                    .delete(API_BOOKS + "/" + deleteBookId)
+                    .then()
+                    .statusCode(STATUS_COD_200);
+        }
     }
 
     @DisplayName(" после добавления книга появляется в БД")
     @Test
     public void shouldHaveCorrectEntityInDbAfterAddingBook() throws JsonProcessingException {
-        Book expectedBook1 = new Book(
-                TEST_ID_1,
-                TEST_GET_A_1,
-                TEST_GET_G_1,
-                TEST_GET_T_1);
-        String jsonExpectedBook1 = new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(expectedBook1);
-
-        given()
-                .header(new Header("Content-Type", "application/json"))
-                .body(jsonExpectedBook1)
-                .when()
-                .post(API_BOOKS_ADD)
-                .then()
-                .statusCode(STATUS_COD_200);
-
-        Book actualBook = bookRepository.getBooksByTitle(TEST_GET_T_1).get(0);
+        insertTestBookByIdFirstMethod();
+        Book actualBook = bookRepository.getBooksByTitle(TEST_T_3).get(0);
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals(TEST_GET_A_1, actualBook.getAuthors()),
-                () -> Assertions.assertEquals(TEST_GET_G_1, actualBook.getGenre()),
-                () -> Assertions.assertEquals(TEST_GET_T_1, actualBook.getTitle())
+                () -> Assertions.assertEquals(TEST_A_3, actualBook.getAuthors()),
+                () -> Assertions.assertEquals(TEST_G_3, actualBook.getGenre()),
+                () -> Assertions.assertEquals(TEST_T_3, actualBook.getTitle())
         );
+        deleteTestBookByIdFirstMethod();
     }
 
     @DisplayName(" получить все книги из БД")
     @Test
-    public void shouldHaveCorrectGetAllBooks() {
-        ValidatableResponse validatableResponse = given()
+    public void shouldHaveCorrectGetAllBooks() throws JsonProcessingException {
+        ValidatableResponse validateResponseBeforeAddedBooks = given()
                 .when()
                 .get(API_BOOKS)
                 .then()
                 .statusCode(STATUS_COD_200);
-
-        List<Book> bookList = validatableResponse
+        List<Book> bookListBeforeAdded = validateResponseBeforeAddedBooks
                 .extract()
                 .body()
                 .jsonPath().getList("", Book.class);
+        long sizeBookInDb = bookListBeforeAdded.size();
+        insertTestBookByIdFirstMethod();
+        insertTestBookByIdSecondMethod();
+        long expectedSize = sizeBookInDb + 2;
+        ValidatableResponse validateResponseAfterAddedBooks = given()
+                .when()
+                .get(API_BOOKS)
+                .then()
+                .statusCode(STATUS_COD_200);
+        List<Book> bookListAfterAdded = validateResponseAfterAddedBooks
+                .extract()
+                .body()
+                .jsonPath().getList("", Book.class);
+        long actualSize = bookListAfterAdded.size();
 
-        assertThat(bookList, Matchers.contains(
-                new Book(bookRepository.getBookIdByBookTitle("t1").get(0).getId(), "a1", "g1", "t1"),
-                new Book(bookRepository.getBookIdByBookTitle(TEST_GET_T_1).get(0).getId(), TEST_GET_A_1, TEST_GET_G_1, TEST_GET_T_1)
-        ));
-        deleteTestBookById();
+        Assertions.assertEquals(expectedSize, actualSize);
     }
 
     @DisplayName(" удалить книгу по id из БД")
     @Test
     public void shouldHaveCorrectDeleteBookById() throws JsonProcessingException {
-        insertBookById_2();
-
-        var deleteBookId = bookRepository.getBookIdByBookTitle(TEST_GET_T_2).get(0).getId();
-
+        insertTestBookByIdFirstMethod();
+        var deleteBookId = bookRepository.getBookIdByBookTitle(TEST_T_3).get(0).getId();
         given()
                 .when()
                 .delete(API_BOOKS + "/" + deleteBookId)
                 .then()
                 .statusCode(STATUS_COD_200);
-
         List<Book> booksById = bookRepository.getBooksById(deleteBookId);
 
         Assertions.assertEquals("[]", booksById.toString());
@@ -133,22 +148,26 @@ public class BookRepositoryTests {
 
     @DisplayName(" получить книгу по id из БД")
     @Test
-    public void shouldHaveCorrectGetBookById() {
-
+    public void shouldHaveCorrectGetBookById() throws JsonProcessingException {
+        insertTestBookByIdFirstMethod();
+        var insertBookId = bookRepository.getBookIdByBookTitle(TEST_T_3).get(0).getId();
         ValidatableResponse validatableResponse =
                 given()
-                        .header(new Header("Content-Type", "application/json"))
+                        .header(HEADER)
                         .when()
-                        .get(API_BOOKS + "/" + TEST_ID_1)
+                        .get(API_BOOKS + "/" + insertBookId)
                         .then()
                         .statusCode(STATUS_COD_200);
-
         var book = validatableResponse
                 .extract()
                 .body()
                 .jsonPath()
                 .getObject("", Book.class);
 
-        Assertions.assertEquals(book, new Book(1, "a1", "g1", "t1"));
+        Assertions.assertEquals(book, new Book(
+                bookRepository.getBooksByTitle(TEST_T_3).get(0).getId(),
+                TEST_A_3,
+                TEST_G_3,
+                TEST_T_3));
     }
 }

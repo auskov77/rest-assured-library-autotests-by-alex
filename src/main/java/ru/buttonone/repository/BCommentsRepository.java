@@ -8,7 +8,6 @@ import ru.buttonone.domain.BComments;
 import java.util.List;
 
 public interface BCommentsRepository extends CrudRepository<BComments, Long> {
-
-    @Query("select bc.id, bc.book_id, bc.nickname, bc.message from b_comments bc where bc.id = :id")
-    List<BComments> getNicknameAndMessageByB_commentsById(@Param("id") long id);
+    @Query("select bc.id, bc.book_id, bc.nickname, bc.message from b_comments bc where bc.nickname = :nickname")
+    List<BComments> getCommentsByNickname(@Param("nickname") String nickname);
 }
